@@ -120,7 +120,7 @@ Get all edges: O(1) -
 
 4. Graph Traversals:
 
-DEPTH-FIRST TRAVERSAL ITERATIVE PSEUDOCODE
+DEPTH-FIRST TRAVERSAL ITERATIVE PSEUDOCODE - Use stack and recursion
     
 procedure DFT_iterative(G, vertex) is
     let S be a stack
@@ -141,16 +141,16 @@ procedure DFT_recursive(G, v) is
         if vertex weight is not labeled as discovered then do
             recursively call DFT_recursive(G, weight)
 
-
 DFSearch: you stop once you find your goal node
 
 
-BREADTH-FIRST TRAVERSAL (opposite of DFT)
+BREADTH-FIRST TRAVERSAL (opposite of DFT) - Use queue
 - Traverse the graph in a breadth-ward motion using a Queue
 - Very useful for finding shortest path from node to node
 
-
-BREADTH-FIRST SEARCH PSEUDOCODE (guided project)
+BREADTH-FIRST SEARCH PSEUDOCODE (guided project) 
+- very useful for finding the shortest path from a source to a destination
+- Shortest/Nearest path == BFS
 
 procedure BFS(G, root) is 
     let Q be a queue
@@ -257,7 +257,42 @@ class Graph:
                     newPath.append(neighbor)
                     stack.append(newPath)
       
-                             
+      
+    def defs_recursive(self, starting_vertex, destination_vertex):
+        # we need a visited set to make sure we keep going back to the visited node
+        visited = set()
+        return self.dfs_recursive_helper([starting_vertex], destination_vertex, visited)
+        
+    # Helper method: returns path from starting vertex to destination vertex. Else, returns an empty list
+    # It's working as a stack - reason for creating a helper method - you want to pass in the visited set & couldn't find a way to do it in the main fn
+    def dfs_recursive_helper(self, curr_path, destination_vertex, visited):
+        # what vertex am I on? Last visited curr_vertex in the path
+        curr_vertex = curr_path[-1] 
+        # base cases - need to know when to return to my base case - when a node is found, you simply return to that node, if not, return to the empty path
+        if curr_vertex == destination_vertex:
+            # curr_path is where the action is happening
+            return curr_path
+        
+        # mark a node as visited
+        visited.add(curr_vertex)
+        # otherwise, keep traversing
+        for neighbor in self.get_neighbors(curr_vertex):
+            if neighbor not in visited:
+                # recursive case - when do you want to recuse the function - find node that you have not yet visited, recurse to that node - make a new copy over path - recursion is using a stack implicitly
+                newPath = list(curr_path)
+                newPath.append(neighbor)
+                # what's our curr_path? newPath
+                # recursive call: returns the path from the starting vertex to the destination vertex
+                # res == result
+                res = self.dfs_recursive_helper(newPath, destination_vertex, visited)
+                # res is an array
+                if len(res) > 0:
+                    return res
+        
+        # return an empty array
+        return []
+    
+
 g = Graph()
 g.add_vertex(0)
 g.add_vertex(1)
@@ -271,7 +306,157 @@ g.add_edge(3, 0)
 g.dft(0)
 print(g)
 
-# Expected output: 
+# Expected output:
 # 0, 2, 3, 1
 # 0, 1, 3, 2
+
+          
+"""
+How to solve any graph problem
+
+1. Translate the problem into graph terminology
+    - What are the vertices, edges, weights (if needed?)
+
+2. Build your graph
+    - Do I even need to build a graph? Should you use an adjacency matrix/list? Yes
+    
+3. Traverse your graph
+    - Should you use BFS/DFS? Do you need an auxiliary data structure?
+
+"""
+"""
+LeetCode
+
+1. DESTINATION CITY
+
+2. WORLD LADDER: 
+    - Find the length of the shortest transformation from beginWord to endWord, each transformation needs to be in wordList
+    - Only one letter can be changed at a time
+    - Each transformed word must exist in the word list. Note that begin_word is not a transformed word
+    
+    Note: 
+    Return None if there is no such transformation sequence
+    All words contain only lowercase alphabetic characters
+    You may assume no dupes
+    
+    Sample: 
+    beginWord = "hit",
+    endWord = "dog",
+    wordList = ["hot","dot","dog","lot","log","cog"]
+    ["hit", "hot", "dot", "dog", "cog"]
+    
+    beginWord = "hit"
+    endWord = "cog"
+    wordList = ["hot","dot", "dog","lot","log"]
+    []
+    
+    
+    1. Translate the problem into graph terminology
+    
+    vertex - a word
+    
+    edge - a possible one letter transformation from source vertex to another vertex
+    hot --d--> dot
+    dot --g--> dog
+    
+    path - series of transformations from one letter source vertex to destination vertex
+    
+    weights - not needed (no costs associated for each transformation - all equal weights)
+    
+    
+    2. Build your graph - do I need to?
+        - we can create all possible transformations of beginWord and all possible transformations of its transformations...BUT that would waste a A LOT OF MEMORY...
+        
+        beginWord = "hit",
+        endWord = "cog",
+        wordList = ["hot","dot","dog","lot","log","cog"]
+        ["hit", "hot", "dot", "dog", "cog"]
+
+        stack (vertices to visit) = [["hit", "hot", "dot", "dog", "lot"]]
+        dog
+        *og
+        d*g
+        do*
+       
+    
+        - instead, what we can do is to find out the next vertex (word) by coming up with all valid one character transformations and seeing if those are valid vertices to visit (if it's in the word list)
+        
+    
+    3. Traverse the graph
+
+"""
+from collections import deque
+
+alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+
+"""
+beginWord = "hit",
+endWord = "zot",
+wordList = [hot","zot"]
+["hit", "hot", "zot"]
+"""
+# find the shortest transformation - bfs
+def findLadders(beginWord, endWord, wordList):
+    # convert the words into a set/list to perform search more efficiently
+    words = set(wordList) # {hot, zot}
+    visited = set() # {hit, hot}
+    queue = deque() # []
+    queue.append([beginWord])
+    while len(queue) > 0: # 1
+        # currPath is an array
+        currPath = queue.popleft() # [hit, hot, zot] - an array of the current transformations
+        currWord = currPath[-1] # zot - last element in the array
+        if currWord in visited:
+            continue # don't do anything, just continue
+        visited.add(currWord)
+        if currWord == endWord:
+            return currPath
+        # Determine which vertices to traverse next
+        """
+        currWord = hot (is it in the wordList?)
+        hot
+        zot
+        h*t
+        ho*
+        """
+        # loop through doc, try out each index of the word
+        for i in range(len(currWord)):
+            for letter in alphabet:
+                transformedWord = currWord[:i] + letter + currWord[i + 1:]
+                # Determine if word is in the word list (if it's a valid vertex to visit)
+                if transformedWord in words:
+                    # if true, it's a valid transformation and
+                    # then we are going to create a new path
+                    newPath = list(currPath) # [hit, hot, zot] --> enqueue this
+                    newPath.append(transformedWord)
+                    queue.append(newPath)
+                    
+        # if we get to here, we haven't found a valid transformation, then return an empty array
+        return []
+                    
+
+                
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+                             
     

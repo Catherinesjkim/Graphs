@@ -18,7 +18,7 @@ Understand
 Example Input: 6
 Example Output: [[1,3],[2,3],[3,6],[5,6],[5,7],[4,5],[4,8],[8,9],[11,8],[10,1]] --> 10
 
-Explanation: Starting at child ID 6, the earliest known ancestor will be parent ID 10, the one at the farthest distance from the input individual. Your ancestry will consist of ID individuals [1,3]->[2,3]->[3,6]->[5,6]->[5,7]->[4,5]->[4,8]->[8,9]->[11,8]->[10,1]] --> 10
+Explanation: Starting at child ID 6, the earliest known ancestor will be parent ID 10, the one at the farthest distance from the input individual. Your ancestry will consist of ID individuals [1,3]->[2,3]->[3,6]->[5,6]->[5,7]->[4,5]->[4,8]->[8,9]->[11,8]->[10,1] --> 10
 
 Plan
 
@@ -50,56 +50,55 @@ Clarifications:
 
 """
 # Function to print ancestors of given node in a binary tree
+from collections import deque
 
-# A Binary Tree node
-class Node:
-    
-    # Constructor to create a new node
-    def __init__(self, data):
-        self.data = data
-        self.left = None
-        self.right = None
-        
-# If target is present in tree, then prints the ancestors
-# and returns true, otherwise returns false
-def earliest_ancestor(ancestors, starting_node):
-    
-    # Base case
-    if ancestors == None:
-        return False
-    
-    if ancestors.data == starting_node:
-        return True
-    
-    # If target is present in either left or right subtree,
-    # of this node, then print this node
-    if (earliest_ancestor(ancestors.left, starting_node) or
-        earliest_ancestor(ancestors.right, starting_node)):
-        print(ancestors.data)
-        return True
-    
-    # Else return False
-    return False
+# [[1, 3], [2, 3], [3, 6], [5, 6], [5, 7], [4, 5], [4, 8], [8, 9], [11, 8], [10, 1]]
+# links = ancestor
+def earliest_ancestor(self, ancestors, starting_node):
+    if len(ancestors) == 0:
+        return ''
+    """
+    Destination ancestor is Not a value/child in this graph
+    graph = {
+    6: {1, 3}, {2, 3}, {3}, {5}
+    }
+    stack = 10
+    visited = [[1, 3], [2, 3], [3, 6], [5, 6], [5, 7], [4, 5], [4, 8], [8, 9], [11, 8], [10, 1]]
+    curr = 10
+    """
+    graph = self.createGraph(ancestors)
+    stack = deque()
+    stack.append(ancestors[0][0])
+    visited = set()
+    while len(stack) > 0:
+        # with dfs, we use stack for traversing - stack is on deck like a queue
+        starting_node = stack.pop()
+        visited.add(starting_node)
+        if starting_node not in graph: # curr isnot a value/child (10)
+            # because that's the farthest ancestor that will not be a value/child
+            return starting_node
+        else:
+            for neighbor in graph[starting_node]:
+                if neighbor not in visited:
+                    stack.append(neighbor)
+    return ''
 
-# Driver program to test above function
-""" 
-```
-10
-/
-1  2   4  11
- \ /  / \ /
-  3   5  8
-   \ / \   \
-    6   7   9
-```
-Example Input: 6
-Example Output: [[1, 3], [2, 3], [3, 6], [5, 6], [5, 7], [4, 5], [4, 8], [8, 9], [11, 8], [10, 1]] --> 10
-"""
-ancestors = Node(6)
-ancestors.left = Node(3)
-ancestors.right = Node(5)
-ancestors.left.left = Node(1)
-ancestors.left.right = Node(2)
-ancestors.left.left.left = Node(10)
+# return a dict origin/source --> {ancestor}
+# ID 10 doesn't have a ancestor, it won't be a value
+def createGraph(self, ancestors):
+    # empty dictionary
+    graph = {}
+    # travere all of the edges
+    for edge in ancestors:
+        parent, child = edge[0], edge[1]
+        if parent in graph:
+            # parent = key; child = value
+            graph[parent].add(child)
+        # otherwise
+        else:
+            # initialize the key
+            graph[parent] = { parent }
+    return graph
+    
 
-earliest_ancestor(ancestors, 10)
+

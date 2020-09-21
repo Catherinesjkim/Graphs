@@ -6,29 +6,43 @@ from util import Stack, Queue  # These may come in handy
 
 class Graph:
 
-    """Represent a graph as a dictionary of vertices mapping labels to edges."""
-
+    """
+    Represent a graph as a dictionary of vertices mapping labels to edges
+    initialize a graph object if no dictionary or None is given, an empty dictionary will be used
+    """
+    # empty dictionary and make a set for the values
+    # vertices = nodes/lands
     def __init__(self):
         self.vertices = {}
 
     def add_vertex(self, vertex_id):
         """
-        Add a vertex to the graph.
+        Add a vertex to the graph
+        If the vertex_id "vertex_id" is not in self.__graph_dict, a key "vertex_id" with an empty list as a value is added to the dictionary. Otherwise nothin has to be done
         """
+        # Add a vertex/node label to the graph
+        # create new key with vertex id, and set the value to an empty set (meaning no edges yet)
         if vertex_id not in self.vertices:
             self.vertices[vertex_id] = set()
 
+    # Create `add_edge` methods that adds the specified entities to the graph
+    # Edge = the connecting line/bridge between two vertices/nodes/lands
     def add_edge(self, v1, v2):
         """
         Add a directed edge to the graph.
+        Assumes that edge is a type set, tuple or list; between two vertices can be multiple edges!
         """
+        # check first if v1 and v2 are in the vertices/nodes
+        # find vertex v1 in our vertices, add v2 to the set of edges
         if v1 in self.vertices and v2 in self.vertices:
             self.vertices[v1].add(v2)
 
     def get_neighbors(self, vertex_id):
         """
         Get all neighbors (edges) of a vertex.
+        A static method generating the edges of the graph "graph". Edges are represented as sets with one (a loop back to the vertex) or two vertices
         """
+        # Get all neighbors (edges) of a vertex
         return self.vertices[vertex_id]
 
     def bft(self, starting_vertex):
@@ -67,29 +81,44 @@ class Graph:
         Print each vertex in depth-first order
         beginning from starting_vertex.
         """
+        # Create an empty stack and add the starting vertex
         stack = Stack()
+        # create an empty set to track visited vertices
         visited = set()
         stack.push(starting_vertex)
+        # while the stack is not empty:
         while stack.size() > 0:
+            # get current vertex (destack from stack)
             node = stack.pop()
+            # Check if the current vertex has not been visited:
             if node not in visited:
+                # print the current vertex/node
                 print(node)
+                ## mark current vertext as visited
+                    # add current vertext to a visited set
                 visited.add(node)
+                # this will return all of the neighbors of the vertices
                 for neighbor in self.get_neighbors(node):
                     stack.push(neighbor)
 
+    # using a python dictionary to act as an adjacency list
     def dft_recursive(self, starting_vertex, visited=set()):
         """
         Print each vertex in depth-first order
         beginning from starting_vertex.
         This should be done using recursion.
         """
+        # to keep track of visited nodes
+        # Pick any vertex/node, mark it as visited and recur on all its adjacent vertices/nodes.
         visited.add(starting_vertex)
         print(starting_vertex)
+        # Repeat until all the nodes are visited, or the node to be searched is found
+        # Then for each neighbor of the current node, the dfs function is invoked again
         for neighbor in self.get_neighbors(starting_vertex):
             if neighbor not in visited:
                 self.dft_recursive(neighbor, visited)
 
+    # visit all the vertices/nodes of the graph
     def bfs(self, starting_vertex, destination_vertex):
         """
         Return a list containing the shortest path from

@@ -18,7 +18,7 @@ class Graph:
     def add_vertex(self, vertex_id):
         """
         Add a vertex to the graph
-        If the vertex_id "vertex_id" is not in self.__graph_dict, a key "vertex_id" with an empty list as a value is added to the dictionary. Otherwise nothin has to be done
+        If the vertex_id "vertex_id" is not in self.vertices, a key "vertex_id" with an empty list as a value is added to the dictionary. Otherwise nothin has to be done
         """
         # Add a vertex/node label to the graph
         # create new key with vertex id, and set the value to an empty set (meaning no edges yet)
@@ -52,7 +52,6 @@ class Graph:
         """
         # Create empty queue and enque starting vertex
         queue = Queue()
-        #
         queue.enqueue(starting_vertex)
         # Create an empty set to track visited vertices
         visited = set()
@@ -71,7 +70,6 @@ class Graph:
                 # {1}
             # queue up all the current vertex's neighbors
             # I CANT DO THIS BECAUSE IT RETURN THE NUMBERS, BUT IN A SET AND I CAN'T STORE A SET WITHIN A SET
-            # queue.enqueue(self.get_neighbors(node))
                 for neighbor in self.get_neighbors(node):
                     queue.enqueue(neighbor)
             # print(queue)
@@ -133,7 +131,7 @@ class Graph:
         visited = set()
         # while the queue is not empty
         while queue.size() > 0:
-            print(queue)
+            # print(queue)
             #  queue = [ [1, 2,3, 5], [1, 2, 4,6] [1,2,4,7]]]
             currrent_path = queue.dequeue()
             # [1, 2, 4]
@@ -156,13 +154,14 @@ class Graph:
                     queue.enqueue(newPath)
                     # [[1, 2, 4,6] [1,2,4,7]]
 
+
     def dfs(self, starting_vertex, destination_vertex):
         """
         Return a list containing a path from
         starting_vertex to destination_vertex in
         depth-first order.
         """
-        # Create empty queue and enque path to starting vertex
+        # Create empty stack and stack path to starting vertex
         stack = Stack()
         stack.push([starting_vertex])
         # [1]
@@ -251,7 +250,7 @@ if __name__ == '__main__':
     Should print:
         {1: {2}, 2: {3, 4}, 3: {5}, 4: {6, 7}, 5: {3}, 6: {3}, 7: {1, 6}}
     '''
-    print(graph.vertices)
+    # print(graph.vertices)
 
     '''
     Valid BFT paths:
@@ -268,7 +267,7 @@ if __name__ == '__main__':
         1, 2, 4, 3, 7, 6, 5
         1, 2, 4, 3, 7, 5, 6
     '''
-    graph.bft(1)
+    # graph.bft(1)
 
     '''
     Valid DFT paths:
@@ -277,14 +276,14 @@ if __name__ == '__main__':
         1, 2, 4, 7, 6, 3, 5
         1, 2, 4, 6, 3, 5, 7
     '''
-    graph.dft(1)
-    graph.dft_recursive(1)
+    # graph.dft(1)
+    #graph.dft_recursive(1)
 
     '''
     Valid BFS path:
         [1, 2, 4, 6]
     '''
-    print(graph.bfs(1, 6))
+    # print(graph.bfs(1, 6))
 
     '''
     Valid DFS paths:

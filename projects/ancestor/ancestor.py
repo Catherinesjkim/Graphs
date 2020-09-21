@@ -54,10 +54,7 @@ from collections import deque
 
 # [[1, 3], [2, 3], [3, 6], [5, 6], [5, 7], [4, 5], [4, 8], [8, 9], [11, 8], [10, 1]]
 # links = ancestor
-def earliest_ancestor(self, ancestors, starting_node):
-    if len(ancestors) == 0:
-        return ''
-    """
+"""
     Destination ancestor is Not a value/child in this graph
     graph = {
     6: {1, 3}, {2, 3}, {3}, {5}
@@ -66,38 +63,44 @@ def earliest_ancestor(self, ancestors, starting_node):
     visited = [[1, 3], [2, 3], [3, 6], [5, 6], [5, 7], [4, 5], [4, 8], [8, 9], [11, 8], [10, 1]]
     curr = 10
     """
-    graph = self.createGraph(ancestors)
+def earliest_ancestor(ancestors, starting_node):
     stack = deque()
-    stack.append(ancestors[0][0])
-    visited = set()
+    graph, paths = createGraph(ancestors), []
+    stack.append([starting_node])
+    
     while len(stack) > 0:
         # with dfs, we use stack for traversing - stack is on deck like a queue
-        starting_node = stack.pop()
-        visited.add(starting_node)
-        if starting_node not in graph: # curr isnot a value/child (10)
-            # because that's the farthest ancestor that will not be a value/child
-            return starting_node
-        else:
-            for neighbor in graph[starting_node]:
-                if neighbor not in visited:
-                    stack.append(neighbor)
-    return ''
+        current_path = stack.pop()
+        current_vertex = current_path[-1]
+        
+        if current_vertex in graph: # curr is not a value/child (10)
+            for neighbor in graph[current_vertex]:
+                # because that's the farthest ancestor that will not be a value/child
+                new_path = list(current_path)
+                new_path.append(neighbor)
+                stack.append(new_path)
+        elif current_vertex != starting_node:
+            if not len(paths):
+                paths.append(current_path)
+            elif len(current_path) > len(paths[0]) or current_path[-1] < paths[0][-1]:
+                paths = [current_path]
+                
+    return paths[0][-1] if len(paths) else -1
 
 # return a dict origin/source --> {ancestor}
 # ID 10 doesn't have a ancestor, it won't be a value
-def createGraph(self, ancestors):
+def createGraph(ancestors):
     # empty dictionary
     graph = {}
     # travere all of the edges
-    for edge in ancestors:
-        parent, child = edge[0], edge[1]
-        if parent in graph:
+    for pair in ancestors:
+        edge, vertex = pair[0], pair[1]
+        if vertex not in graph:
             # parent = key; child = value
-            graph[parent].add(child)
-        # otherwise
-        else:
-            # initialize the key
-            graph[parent] = { parent }
+            graph[vertex] = set()
+        # initialize the key - add edge to the key in the graph
+        graph[vertex].add(edge)
+    # otherwise
     return graph
     
 

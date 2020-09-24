@@ -44,12 +44,19 @@ Note that in this sample, Users 3, 4 and 9 are not in User 1's extended social n
 * Hint 1: What kind of graph search guarantees you a shortest path?
 * Hint 2: Instead of using a `set` to mark users as visited, you could use a `dictionary`. Similar to sets, checking if something is in a dictionary runs in O(1) time. If the visited user is the key, what would the value be?
 
+
 ## 3. Questions
 
-1. To create 100 users with an average of 10 friends each, how many times would you need to call `add_friendship()`? Why?
+1. To create 100 users with an average of 10 friends each, how many times would you need to call add_friendship()? Why? 
 
-2. If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? What is the average degree of separation between a user and those in his/her extended network?
+Call add friendship 100 times --> Answer: 500. Statistical algorithms developed by Kang and others [6-8] to estimate distances with great accuracy, basically finding the approximate number of people within 1, 2, 3 (and so on) hops away from a source. For each number of hops we estimate the number of distinct people you can reach from every source. This estimation can be done efficiently using the Flajolet-Martin algorithm [9]. How does it work? Imagine you have a set of people and you want to count how many are unique. First you assign each person a random integer; let’s call it hash. Approximately 1/2 of the people will have an even hash: the binary representation of the hash will end with 0. Approximately 1/4 of the people will have a hash divisible by 4; that is, the binary representation ends with 00. In general, 1/2n people will have the binary representation of their hash end with n zeros. Now, we can reverse this and try to count how many different people we have by reading their hash values one by one. To do that, we track the biggest number of zeroes we’ve seen. Intuitively, if there were n zeroes, we can expect set to have c*2n unique numbers, where c is some constant. For better accuracy we can do this computation multiple times with different hash values.
 
+2. If you create 1000 users with an average of 5 random friends each, what percentage of other users will be in a particular user's extended social network? 50%
+What is the average degree of separation between a user and those in his/her extended network? 
+
+Answer: 3.57 average degree. Each person in the world (at least among the 1.59 billion people active on Facebook) is connected to every other person by an average of three and a half other people. The average distance we observe is 4.57, corresponding to 3.57 intermediaries or “degrees of separation.” Within the US, people are connected to each other by an average of 3.46 degrees. 
+
+Reference: https://research.fb.com/blog/2016/02/three-and-a-half-degrees-of-separation/
 
 
 ## 4. Stretch Goal

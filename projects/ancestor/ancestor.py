@@ -1,8 +1,8 @@
 """
 Similar to destination city problem
 Key:Value
-Parent:Child (patent)
-Source vertex: find the earliest ancestor (priority!)
+Parent:Child 
+Source vertex: find the earliest ancestor 
 
 Understand
 
@@ -28,11 +28,11 @@ Explanation: Starting at child ID 6, the earliest known ancestor will be parent 
 Plan
 1. Translate the problem into graph terminology
 Vertex - a person (in this case, we're given their IDs)
-Edge - parent-child relationship between two people
-Weights - not needed, all edges are equal and have no value/cost relted to them
+Edge - parent/child relationship between two people
+Weights - not needed, all edges are equal and have no value/cost related to them
 
 2. Build your graph (use adjacency list)
-Build a graph by using the parent-child relationships/edges we're givein (adjacency list from the input). Each node in the graph will have an outgoing/directed edge to tis parent/ancestor.
+Build a graph by using the parent-child relationships/edges we're givein (adjacency list from the input). Each node in the graph will have an outgoing/directed edge to its parent/ancestor
 
 Key:Value of those keys
 Parent:Child Key:Value
@@ -91,7 +91,7 @@ def earliest_ancestor(ancestors, starting_node):
         elif current_vertex != starting_node:
             if not len(paths):
                 paths.append(current_path)
-            elif len(current_path) > len(paths[0] or current_path[-1] < paths[0][-1]):
+            elif len(current_path) > len(paths[0] or current_path[-1] < paths[0][-1]): # lambda fn 
                 paths = [current_path]
                 
     # If the starting node's earliest ancestor is itself, then just return -1
@@ -103,14 +103,14 @@ def earliest_ancestor(ancestors, starting_node):
 def createGraph(ancestors):
     # This convenience method simply allows us to initialize default values when assigniing
     # a key to a dictionary. In this case, the default value for a new key is an empty set
-    # empty dict
-    graph = {}
+    # empty dict - indexed with strings - ordered
+    graph = {} 
     # travere all of the edges
     for pair in ancestors:
         edge, vertex = pair[0], pair[1]
         if vertex not in graph:
             # parent = key; child = value
-            graph[vertex] = set()
+            graph[vertex] = set() # setting a value within a dict with a set() - unordered, index integers
         # initialize the key - add edge to the key in the graph
         graph[vertex].add(edge)
     # otherwise

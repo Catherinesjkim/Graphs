@@ -44,6 +44,7 @@ class SocialGraph:
 
     # This creates a bi-directional friendshipo
     # use this method in the populate_graph method
+    # not suer if add_friendship fn succeeded --> add_friendship_linear()
     def add_friendship(self, user_id, friend_id):
         """
         Creates a bi-directional friendship
@@ -81,11 +82,16 @@ class SocialGraph:
     as arguments
 
     Creates that number of users and a randomly distributed friendships
-    between those users.
+    between those users
 
-    The number of users must be greater than the average number of friendships.
+    The number of users must be greater than the average number of friendships
+    
+    Runtime: n is num_users or avg_friendships or both
+    
     """
     # implement populate_graph and the users should be randomized
+    # Runtime: O(n^2) == O(users^2) because there are double for loops
+    #                        n          m
     def populate_graph(self, num_users, avg_friendships):
         # Reset graph - set everything back to normal multiple times
         self.last_id = 0
@@ -94,39 +100,90 @@ class SocialGraph:
         # !!! IMPLEMENT ME - #1 Generating Users and Friendships & Populate the Graph - Done
         # Add users before creating a friendship
         # randomly distribute friendships between these Users
-        for i in range(0, num_users):
+        for i in range(0, num_users): # runtime: O(n) - O(num_users)
             self.add_user(f"User {i+1}") # you will not care about the name in this case
             
         # Create friendships - random distribution of friendship but not too many either (average 2)
-        # Generate ALL possible friendships and put them into an array - pick out the average friendship per user
-        # Avoid dupelicate friendships using double for loops - only consider the ones that are further away from you
+        # Generate ALL possible friendships - and put them into an array - pick out the average friendship per user
+        # Avoid duplicate friendships - using double for loops - only consider the ones that are further away from you
         possible_friendships = []
-        for user_id in self.users:
+        # first loop: starts at first value and goes all the way
+        for user_id in self.users: # First loop runtime: O(n)
+            # second loop: start at the next value after the first loop + 1
+            # how many times do we have to go until the last user? len(self.users.keys()) + 1
+            # Second loop runtime: O(n-1), O(n-2), O(n-3), ... --> 0(1) = O(n) ---> Total: O(n^2)
             for friend_id in range(user_id + 1, len(self.users.keys()) + 1):
-                # user_id == user_id_2 cannot happen
+                # user_id == user_id_2 cannot happen - optimization
                 # if friendship between user_id and user_id_2 already exists
                 # don't add friendship between user_id_2 and user_id
-                possible_friendships.append( (user_id, friend_id) ) # tuple
+                possible_friendships.append((user_id, friend_id)) # tuple
         
         # Randomly selected X friendships
-        # the forumla for X is num_users * avg_friendships // 2
-        # shuffle the array and pick X elements from the front of it
+        # the formulat for X is num_users * avg_friendships // 2
+        # shuffle the entire array of possible friendships and pick X elements from it
         random.shuffle(possible_friendships)
         # Take the first num_users * avg_friendships // 2 (friendhips are bi-directional) and that will be the friendships for that graph
         num_friendships = num_users * avg_friendships // 2
-        for i in range(0, num_friendships):
+        
+        # Select the first num_users * avg_friendships
+        # We / 2 because a friendship is a bi-directional edge (we're essentially adding 2 edges)
+        for i in range(0, num_friendships): # Runtime: O(n * m / 2) - if m = m --> O(n^2 / 2); m = friendships
             friendship = possible_friendships[i]
             # this method will create an edge from 0 to 1
             self.add_friendship(friendship[0], friendship[1])
+            
+    # Runtime: O(n) - n is target_friendships - optimazing 
+    def populate_graph_linear(self, num_users, avg_friendships):
+        # Keep randomly making friendships until we've made the right amount
+        # randomly select 2 vertices to become friends
+        # if it's a success, then increment number of friendships made
+        # else try again
+        self.last_id = 0
+        self.users = {}
+        self.friendships = {}
+        
+        for i in range(0, num_users):
+            self.add_user(f'User {i}')
+            
+        target_friendships = num_users * avg_friendships
+        total_friendships = 0
+        collisions = 0
+        while total_friendships < target_friendships:
+            # 2 vertices - last_id (how many users I have)
+            user_id = random.randint(1, self.last_id)
+            friend_id = random.randint(1, self.last_id)
+            if self.add_friendship_linear(user_id, friend_id):
+                # if succeeded, increment by 2
+                total_friendships += 2
+            # if that increment of friendship does not succeed due to collisions,
+            else:
+                collisions += 1
+        print(f"collisions: {collisions}")
+        
+            
+    # returns true if making friendship was a success
+    def add_friendship_linear(self, user_id, friend_id):
+        # if you are friends with yourself, don't add that friendship
+        if user_id == friend_id:
+            return False
+        # if any of the below is true, we don't wanna make a friendship if it already exists,
+        elif friend_id in self.friendships[user_id] or user_id in self.friendships[friend_id]:
+            # then return false
+            return False
+        else:
+            self.friendships[user_id].add(friend_id) # add friendships to the adjacency list
+            self.friendships[friend_id].add(user_id)
+            return True
         
         
     """
-    Takes a user's user_id as an argument
+    Takes a user's user_id as an argument - how broad is my social network?
 
     Returns a dictionary containing every user in that user's
     extended network with the shortest friendship path between them (connected component component starting from user_id)
     
-    Hint 1: what graph search guarantees the shortest friendship path?
+    Hint 1: what graph search guarantees the shortest friendship path? Breadth First Traversal - to get through every single node, until we can't do it any more vs. BFSearch - with a target in mind
+    
     Hint 2: Instead of using a set to mark users as visited, you could use a dictionary. Similar to sets, checking if something is in a dictionary runs in O(1) time. If the visited user is the key, what would the value be? 
 
     The key is the friend's ID and the value is the path.
@@ -134,16 +191,17 @@ class SocialGraph:
     # hit every connected user ID and the path to it using BFT - shortest path
     # instead of saying I visited 2, add more info into it (key:value pair)
     def get_all_social_paths(self, user_id):    
-        # !!!! IMPLEMENT ME - #2 Degrees of Separation
+        # !!!! IMPLEMENT ME - #2 Degrees of Separation - Done
         # Create a Queue
+        # Create a set of visited (previously seen) Vertices
         queue = Queue()
         # Create a Dictionary of visited (previously seen) Vertices
         visited = {
             # Key: Value
-            # 3: [1, 3]
-            # 2: [1, 2]
-            # 4: [1, 2, 4]
-            # 5: [1, 3, 5]
+            # 3: {1, 3}
+            # 2: {1, 2}
+            # 4: {1, 2, 4}
+            # 5: {1, 3, 5}
         }  # Note that this is a dictionary (key value store), not a set
         # Add first user_id to the Queue as a path
         queue.enqueue([user_id])
@@ -173,16 +231,16 @@ class SocialGraph:
         return visited
         
 
-    
 if __name__ == '__main__':
-    sg = SocialGraph()
-    # sg.add_user("Catherine")
-    # sg.add_user("Justin")
-    # sg.add_user("Brandon")
-    # sg.add_friendship(0, 1)
     
-    # created a graph with 10 users, average friendships of 2
-    sg.populate_graph(10, 2)
-    print(sg.friendships)
+    sg = SocialGraph()
+    
+    # created a graph with 10 users, average friendships of 2 - adjacency list
+    sg.populate_graph(5, 2)
+    print(f'friendships: {sg.friendships}')
+    
+    # People connected to you through any number of friendship connections are considered a part of your extended social network. The number of connections between one user and another are called the degrees of separation
+    # starting from node 1, it takes only 1 path to itself, to get to node 3, I need the path of node 1 & 3, etc. 
+    # Output - connections: {1: [1], 3: [1, 3], 4: [1, 4], 5: [1, 5], 2: [1, 4, 2]}
     connections = sg.get_all_social_paths(1)
-    print(connections)
+    print(f'connections: {connections}')

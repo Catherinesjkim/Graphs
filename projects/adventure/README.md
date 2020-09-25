@@ -1,4 +1,9 @@
-## Description
+## Description: Similar to Sprint Challenge
+
+curtain: graphs
+rooms: vertices
+doorways: edges
+
 
 You are provided with a pre-generated graph consisting of 500 rooms. You are responsible for filling `traversal_path` with directions that, when walked in order, will visit every room on the map at least once.
 
@@ -61,6 +66,7 @@ My best path is 957 moves. Can you find a shorter path?
 
 
 ## Rubric
+
 | OBJECTIVE | TASK | 1 - DOES NOT MEET Expectations | 2 - MEETS Expectations | 3 - EXCEEDS Expectations | SCORE |
 | ---------- | ----- | ------- | ------- | ------- | -- |
 | _Student can demonstrate applied knowledge of Graph Theory by traversing a large map_ | Complete traversal of a large Graph | Student unable to produce a valid traversal path of 2000 moves or less | Student is able to produce a valid traversal path between 960 and 2000 | Student produces a valid traversal path of 959 moves or less |  |

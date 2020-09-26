@@ -3,23 +3,30 @@ Given social graph class, given number users that I need to create and number fr
 
 Output: dictionary of friend of friend. Starting node = 1 (1 to 8) 
 
+Adjacency List: In graph theory and CS, it is a collection of unordered lists used to represent a finite graph. Each list describes the set of neighbors of a vertex in the graph. This is one of several commonly used representations of graphs for us in computer programs. It represents a graph as an array of linked lists. The index of the array represents a vertex and each element in its linked list represents the other vertices that form an edge with the vertex. It's efficient in terms of storage because we only need to store the values for the edges. For a graph with millions of vertices, this can mean a lot of saved space.
+
 """
 
 import random
 
+# Added a Queue helper class function instead of importing a deque
+# Queue() creates a new queue that is empty. It needs no parameters and returns an empty queue
 class Queue():
     def __init__(self):
         self.queue = []
 
+    # enqueue(item) adds a new item to the rear of the queue. It needs the item and returns nothing
     def enqueue(self, value):
         self.queue.append(value)
 
+    # dequeue() removes the front item from the queue. It needs no parameters and returns the item. The queue is modified
     def dequeue(self):
         if self.size() > 0:
             return self.queue.pop(0)
         else:
             return None
 
+    # size() returns the number of items in the queue. It needs no parameters and returns an integer
     def size(self):
         return len(self.queue)
     
@@ -42,13 +49,10 @@ class SocialGraph:
         self.friendships = {} # adjacency representation {1: {2, 3, 4}, 2: {1}, 3: {1}, 4: {1}} # bi-directional
 
 
-    # This creates a bi-directional friendshipo
+    # This creates a bi-directional friendship
     # use this method in the populate_graph method
-    # not suer if add_friendship fn succeeded --> add_friendship_linear()
+    # not sure if add_friendship function succeeded --> add_friendship_linear() - see below
     def add_friendship(self, user_id, friend_id):
-        """
-        Creates a bi-directional friendship
-        """
         # error checking
         if user_id == friend_id:
             # you can't be friends with yourself
@@ -60,15 +64,16 @@ class SocialGraph:
         # otherwise, add 
         else:
             # friendships are bi-directional connections
-            self.friendships[user_id].add(friend_id) # the direction one way
-            self.friendships[friend_id].add(user_id) # the corresponding ID to the friend adjacency list
+            # the direction is one way
+            # Add the corresponding ID to the user adjacency list 
+            self.friendships[user_id].add(friend_id)
+            self.friendships[friend_id].add(user_id) # Add the corresponding ID to the friend adjacency list
 
-
+    """
+    Create a new user with a sequential integer ID
+    """
     # use this method in the populate_graph method
     def add_user(self, name):
-        """
-        Create a new user with a sequential integer ID
-        """
         # every time there's a new user, we give the next sequential ID
         self.last_id += 1  # automatically increment the ID to assign the new user so you know how many users there are in the network
         self.users[self.last_id] = User(name) # {1: User("catherine")}
@@ -172,7 +177,7 @@ class SocialGraph:
             return False
         else:
             self.friendships[user_id].add(friend_id) # add friendships to the adjacency list
-            self.friendships[friend_id].add(user_id)
+            self.friendships[friend_id].add(user_id) # add friendships to the adjacency list
             return True
         
         
@@ -230,6 +235,7 @@ class SocialGraph:
                     
         return visited
         
+
 
 if __name__ == '__main__':
     
